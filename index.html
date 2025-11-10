@@ -18,8 +18,6 @@
             --modal-overlay-bg: rgba(243, 244, 246, 0.8);
         }
 
-        /* ... (Your original CSS styles) ... */
-
         /* Styles for GitHub Analytics Icon */
         #analytics-icon {
             cursor: pointer;
@@ -43,7 +41,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
             z-index: 50;
-            display: none; 
+            display: none; /* Initially hidden, JS/class handles showing/hiding */
         }
         #join-modal-content {
             transform: scale(0.95);
@@ -131,8 +129,14 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        /* FIX: Ensure the settings/app/results start hidden, 
+           and the modal starts hidden unless the JS says otherwise */
         #quiz-settings, #quiz-app, #results-screen {
             display: none;
+        }
+        /* Ensure the modal is hidden by default and shown by JS */
+        #join-modal-overlay {
+            display: none; 
         }
         .correct {
             background-color: #d1fae5 !important;
@@ -154,7 +158,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <a id="analytics-icon" href="https://github.com/theaspirantsgurukul-creator/epfo-quiz-set2/graphs/traffic" target="_blank" title="View Page Analytics (Requires Login)">
+    <a id="analytics-icon" href="https://github.com/theaspirantsgurukul-creator/upsc-quiz/graphs/traffic" target="_blank" title="View Page Analytics (Requires Login)">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
         </svg>
@@ -162,7 +166,7 @@
 
     <div id="notification-container" class="fixed top-5 right-5 z-50"></div>
 
-    <div id="join-modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-show">
+    <div id="join-modal-overlay" class="fixed inset-0 z-50 items-center justify-center p-4">
         <div id="join-modal-content" class="modal-content rounded-2xl shadow-2xl p-8 max-w-sm w-full bg-white text-center">
             <h3 class="text-2xl font-bold mb-4 text-indigo-600">Access Restricted</h3>
             <p class="mb-6 text-gray-700">
@@ -176,7 +180,16 @@
         </div>
     </div>
 
-    <div id="quiz-container-wrapper" class="w-full h-full flex flex-col items-center justify-center space-y-4"> 
+    <div id="quiz-container-wrapper" class="w-full h-full flex flex-col items-center justify-center space-y-4">
+        
+        <div id="quiz-logo-link" class="quiz-container text-center py-3 px-6 rounded-t-2xl bg-white shadow-md hidden">
+             <a href="https://t.me/TheAspirantsGurukul" target="_blank" class="block">
+                <img src="https://github.com/theaspirantsgurukul-creator/upsc-quiz/blob/main/logo.jpg"
+                     alt="The Aspirants Gurukul Logo" 
+                     class="h-10 mx-auto"
+                >
+            </a>
+        </div>
         
         <div id="quiz-watermark" class="quiz-container text-center py-3 px-6 rounded-t-2xl border-b border-indigo-200 bg-indigo-50 shadow-md hidden">
             <p class="text-sm font-medium text-indigo-800">
@@ -3386,7 +3399,6 @@
     }
             ]
         };
-           
         
         // --- DOM Elements ---
         const quizSettings = document.getElementById('quiz-settings');
@@ -3416,11 +3428,12 @@
         const sunIcon = document.getElementById('sun-icon');
         const moonIcon = document.getElementById('moon-icon');
         
-        // New/Updated Elements for Access Control
+        // New/Updated Elements for Access Control & Logo
         const joinModalOverlay = document.getElementById('join-modal-overlay');
         const accessQuizBtn = document.getElementById('access-quiz-btn');
         const joinChannelBtn = document.getElementById('join-channel-btn');
         const quizWatermark = document.getElementById('quiz-watermark');
+        const quizLogoLink = document.getElementById('quiz-logo-link'); // NEW LOGO ELEMENT
         const quizWrapper = document.getElementById('quiz-container-wrapper');
 
         // --- State Variables ---
@@ -3434,6 +3447,7 @@
         let quizStartTime = null;
         let isQuizOngoing = false;
         
+        // FIX: The initial value for localStorage items should be consistent
         let hasAccessed = localStorage.getItem('hasAccessedQuiz') === 'true'; 
         let hasClickedJoin = localStorage.getItem('hasClickedJoin') === 'true'; 
 
@@ -3445,9 +3459,10 @@
             if (!hasAccessed) {
                 showJoinModal();
             } else {
+                // FIX: If accessed, explicitly hide the modal and show the settings screen
                 joinModalOverlay.classList.remove('flex', 'modal-show');
                 joinModalOverlay.classList.add('hidden');
-                showScreen('quiz-settings');
+                showScreen('quiz-settings'); 
             }
         });
 
@@ -3498,6 +3513,7 @@
         restartQuizBtn.addEventListener('click', () => {
             isQuizOngoing = false;
             quizWatermark.classList.add('hidden');
+            quizLogoLink.classList.add('hidden'); // Hide logo on restart
             showScreen('quiz-settings');
         });
 
@@ -3540,6 +3556,7 @@
 
         function showJoinModal() {
             joinModalOverlay.classList.remove('hidden');
+            // FIX: Ensure 'flex' is added to show the modal
             joinModalOverlay.classList.add('flex', 'modal-show');
             
             // Set initial state of the Access button
@@ -3569,8 +3586,11 @@
         }
 
         function showScreen(screenId) {
-            // Hide watermark by default
+            // Hide watermark and logo by default
             quizWatermark.classList.add('hidden'); 
+            quizLogoLink.classList.add('hidden'); // Hide logo
+            
+            // Reset rounding classes for all main quiz containers
             quizSettings.classList.remove('rounded-b-2xl');
             quizApp.classList.remove('rounded-b-2xl');
             resultsScreen.classList.remove('rounded-b-2xl');
@@ -3585,9 +3605,10 @@
             const targetScreen = document.getElementById(screenId);
             targetScreen.style.display = 'flex';
             
-            // Show watermark and adjust rounding for continuity
+            // Show watermark AND logo link, and adjust rounding for continuity
             if (screenId === 'quiz-settings' || screenId === 'quiz-app' || screenId === 'results-screen') {
                  quizWatermark.classList.remove('hidden');
+                 quizLogoLink.classList.remove('hidden'); // Show logo
                  targetScreen.classList.remove('rounded-2xl');
                  targetScreen.classList.add('rounded-b-2xl');
             }
@@ -3628,103 +3649,103 @@
         }
 
         function renderQuestion() {
-            if (!isQuizOngoing) return;
-            if (currentQuestionIndex >= quizQuestions.length) {
-                submitQuiz();
-                return;
-            }
+            if (!isQuizOngoing) return;
+            if (currentQuestionIndex >= quizQuestions.length) {
+                submitQuiz();
+                return;
+            }
 
-            const q = quizQuestions[currentQuestionIndex];
-            let optionsHtml = '';
-            q.options.forEach((option, index) => {
-                const buttonClasses = answers[currentQuestionIndex] !== null ? 'disabled-button' : 'bg-white border-gray-300 hover:bg-gray-100';
-                optionsHtml += `
-                    <button class="option-button w-full text-left p-4 rounded-xl border-2 ${buttonClasses}" data-index="${index}" ${answers[currentQuestionIndex] !== null ? 'disabled' : ''}>
-                        ${option}
-                    </button>
-                `;
-            });
+            const q = quizQuestions[currentQuestionIndex];
+            let optionsHtml = '';
+            q.options.forEach((option, index) => {
+                const buttonClasses = answers[currentQuestionIndex] !== null ? 'disabled-button' : 'bg-white border-gray-300 hover:bg-gray-100';
+                optionsHtml += `
+                    <button class="option-button w-full text-left p-4 rounded-xl border-2 ${buttonClasses}" data-index="${index}" ${answers[currentQuestionIndex] !== null ? 'disabled' : ''}>
+                        ${option}
+                    </button>
+                `;
+            });
 
-            quizContent.innerHTML = `
-                <p class="text-lg font-semibold mb-4">Question ${currentQuestionIndex + 1} of ${quizQuestions.length}</p>
-                <p class="text-xl font-bold mb-6">${q.question}</p>
-                <div class="options-container flex flex-col space-y-3">
-                    ${optionsHtml}
-                </div>
-            `;
+            quizContent.innerHTML = `
+                <p class="text-lg font-semibold mb-4">Question ${currentQuestionIndex + 1} of ${quizQuestions.length}</p>
+                <p class="text-xl font-bold mb-6">${q.question}</p>
+                <div class="options-container flex flex-col space-y-3">
+                    ${optionsHtml}
+                </div>
+            `;
 
-            quizNavigation.innerHTML = '';
-            
-            // Create a flex container to hold all three buttons
-            const navContainer = document.createElement('div');
-            navContainer.className = 'flex justify-between items-center w-full';
+            quizNavigation.innerHTML = '';
+            
+            // Create a flex container to hold all three buttons
+            const navContainer = document.createElement('div');
+            navContainer.className = 'flex justify-between items-center w-full';
 
-            // --- Previous Button ---
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'quiz-button bg-gray-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-gray-600';
-            prevBtn.textContent = 'Previous';
-            prevBtn.disabled = currentQuestionIndex === 0;
-            prevBtn.addEventListener('click', () => {
-                currentQuestionIndex--;
-                renderQuestion();
-            });
-            navContainer.appendChild(prevBtn);
+            // --- Previous Button ---
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'quiz-button bg-gray-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-gray-600';
+            prevBtn.textContent = 'Previous';
+            prevBtn.disabled = currentQuestionIndex === 0;
+            prevBtn.addEventListener('click', () => {
+                currentQuestionIndex--;
+                renderQuestion();
+            });
+            navContainer.appendChild(prevBtn);
 
-            // --- NEW: Exit/Submit Quiz Button ---
-            const exitSubmitBtn = document.createElement('button');
-            // Use a different color (red) to signify a final action
-            exitSubmitBtn.className = 'quiz-button bg-red-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-red-700 mx-4';
-            exitSubmitBtn.textContent = 'Exit/Submit Quiz';
-            exitSubmitBtn.addEventListener('click', () => {
-                // Optional: Add a confirmation dialog before submitting
-                if (confirm('Are you sure you want to submit the quiz now?')) {
-                    submitQuiz();
-                }
-            });
-            navContainer.appendChild(exitSubmitBtn);
+            // --- Exit/Submit Quiz Button ---
+            const exitSubmitBtn = document.createElement('button');
+            // Use a different color (red) to signify a final action
+            exitSubmitBtn.className = 'quiz-button bg-red-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-red-700 mx-4';
+            exitSubmitBtn.textContent = 'Exit/Submit Quiz';
+            exitSubmitBtn.addEventListener('click', () => {
+                // Optional: Add a confirmation dialog before submitting
+                if (confirm('Are you sure you want to submit the quiz now?')) {
+                    submitQuiz();
+                }
+            });
+            navContainer.appendChild(exitSubmitBtn);
 
-            // --- Next Button ---
-            const nextBtn = document.createElement('button');
-            // Adjusted padding for better spacing with the new button
-            nextBtn.className = 'quiz-button bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-indigo-700'; 
-            nextBtn.textContent = 'Next Question';
-            
-            // Change button text/color if it's the last question
-            if (currentQuestionIndex === quizQuestions.length - 1) {
-                nextBtn.textContent = 'Last Question -> Submit';
-                nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            } else if (answers[currentQuestionIndex] !== null) {
-                // If answered, next button can be green to encourage moving forward
-                nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            } else {
-                // If not answered, keep it indigo (or change to a less prominent color like blue/gray to encourage answering first)
-                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                nextBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-            }
+            // --- Next Button ---
+            const nextBtn = document.createElement('button');
+            // Adjusted padding for better spacing with the new button
+            nextBtn.className = 'quiz-button bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-indigo-700'; 
+            nextBtn.textContent = 'Next Question';
+            
+            // Change button text/color if it's the last question
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                nextBtn.textContent = 'Last Question -> Submit';
+                nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else if (answers[currentQuestionIndex] !== null) {
+                // If answered, next button can be green to encourage moving forward
+                nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                // If not answered, keep it indigo (or change to a less prominent color like blue/gray to encourage answering first)
+                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                nextBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
 
-            nextBtn.addEventListener('click', () => {
-                if (currentQuestionIndex === quizQuestions.length - 1) {
-                    submitQuiz();
-                } else {
-                    currentQuestionIndex++;
-                    renderQuestion();
-                }
-            });
-            navContainer.appendChild(nextBtn);
-            
-            // Append the whole container to the navigation div
-            quizNavigation.appendChild(navContainer);
-            
-            document.querySelectorAll('.option-button').forEach(button => {
-                button.addEventListener('click', handleAnswerSelection);
-            });
-            
-            if (answers[currentQuestionIndex] !== null) {
-                displayAnswerFeedback(answers[currentQuestionIndex]);
-            }
-        }
+            nextBtn.addEventListener('click', () => {
+                if (currentQuestionIndex === quizQuestions.length - 1) {
+                    submitQuiz();
+                } else {
+                    currentQuestionIndex++;
+                    renderQuestion();
+                }
+            });
+            navContainer.appendChild(nextBtn);
+            
+            // Append the whole container to the navigation div
+            quizNavigation.appendChild(navContainer);
+            
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.addEventListener('click', handleAnswerSelection);
+            });
+            
+            if (answers[currentQuestionIndex] !== null) {
+                displayAnswerFeedback(answers[currentQuestionIndex]);
+            }
+        }
 
         function handleAnswerSelection(event) {
             const selectedIndex = parseInt(event.target.dataset.index);
