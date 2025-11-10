@@ -166,20 +166,6 @@
 
     <div id="notification-container" class="fixed top-5 right-5 z-50"></div>
 
-    <div id="join-modal-overlay" class="fixed inset-0 z-50 items-center justify-center p-4">
-        <div id="join-modal-content" class="modal-content rounded-2xl shadow-2xl p-8 max-w-sm w-full bg-white text-center">
-            <h3 class="text-2xl font-bold mb-4 text-indigo-600">Access Restricted</h3>
-            <p class="mb-6 text-gray-700">
-                To access the quiz, we highly recommend joining our Telegram channel for all updates and study materials.
-            </p>
-            <a href="https://t.me/TheAspirantsGurukul" target="_blank" id="join-channel-btn" class="quiz-button bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-blue-600 flex items-center justify-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zM20.008 7.33l-1.966 9.1c-.183.84-.693.996-1.393.618l-4.425-3.264-2.152 2.072c-.22.213-.404.404-.817.404-.325 0-.575-.164-.784-.367l-2.05-1.97-3.957-2.92c-.749-.438-1.282-.208-1.482.693l-2.739 12.875 18.02-9.255z"/></svg>
-                <span>Join The Aspirants Gurukul</span>
-            </a>
-            <button id="access-quiz-btn" class="mt-4 quiz-button bg-green-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-green-600 w-full opacity-50 cursor-not-allowed" disabled>I Have Joined / Access Quiz</button>
-        </div>
-    </div>
-
     <div id="quiz-container-wrapper" class="w-full h-full flex flex-col items-center justify-center space-y-4">
         
         <div id="quiz-logo-link" class="quiz-container text-center py-3 px-6 rounded-t-2xl bg-white shadow-md hidden">
@@ -3429,9 +3415,6 @@
         const moonIcon = document.getElementById('moon-icon');
         
         // New/Updated Elements for Access Control & Logo
-        const joinModalOverlay = document.getElementById('join-modal-overlay');
-        const accessQuizBtn = document.getElementById('access-quiz-btn');
-        const joinChannelBtn = document.getElementById('join-channel-btn');
         const quizWatermark = document.getElementById('quiz-watermark');
         const quizLogoLink = document.getElementById('quiz-logo-link'); // NEW LOGO ELEMENT
         const quizWrapper = document.getElementById('quiz-container-wrapper');
@@ -3446,49 +3429,12 @@
         let isPaused = false;
         let quizStartTime = null;
         let isQuizOngoing = false;
-        
-        // FIX: The initial value for localStorage items should be consistent
-        let hasAccessed = localStorage.getItem('hasAccessedQuiz') === 'true'; 
-        let hasClickedJoin = localStorage.getItem('hasClickedJoin') === 'true'; 
 
-        // --- Event Listeners and Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadThemeSettings();
-            
-            // Initial Access Check (Telegram Join Gate)
-            if (!hasAccessed) {
-                showJoinModal();
-            } else {
-                // FIX: If accessed, explicitly hide the modal and show the settings screen
-                joinModalOverlay.classList.remove('flex', 'modal-show');
-                joinModalOverlay.classList.add('hidden');
-                showScreen('quiz-settings'); 
-            }
-        });
-
-        // Listener for the main Telegram link button
-        joinChannelBtn.addEventListener('click', () => {
-            // Enable the access button after the user clicks the join link
-            if (!hasClickedJoin) {
-                localStorage.setItem('hasClickedJoin', 'true');
-                hasClickedJoin = true;
-                accessQuizBtn.disabled = false;
-                accessQuizBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                showNotification('info', 'Thank you! You can now access the quiz.');
-            }
-        });
-
-        accessQuizBtn.addEventListener('click', () => {
-            if (accessQuizBtn.disabled) {
-                showNotification('error', 'Please click the "Join The Aspirants Gurukul" button first.');
-                return;
-            }
-            // User acknowledges the join requirement and proceeds
-            localStorage.setItem('hasAccessedQuiz', 'true');
-            hasAccessed = true;
-            hideJoinModal();
-            showScreen('quiz-settings');
-        });
+    loadThemeSettings();
+    // Directly show the settings screen
+    showScreen('quiz-settings');
+});
 
         startQuizBtn.addEventListener('click', () => {
             const subject = document.getElementById('subject-select').value;
@@ -3551,32 +3497,7 @@
                 playIcon.classList.add('hidden');
             }
         });
-
-        // --- Core Functions ---
-
-        function showJoinModal() {
-            joinModalOverlay.classList.remove('hidden');
-            // FIX: Ensure 'flex' is added to show the modal
-            joinModalOverlay.classList.add('flex', 'modal-show');
-            
-            // Set initial state of the Access button
-            if (!hasClickedJoin) {
-                accessQuizBtn.disabled = true;
-                accessQuizBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                 accessQuizBtn.disabled = false;
-                 accessQuizBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function hideJoinModal() {
-             joinModalOverlay.classList.remove('modal-show');
-             setTimeout(() => {
-                 joinModalOverlay.classList.remove('flex');
-                 joinModalOverlay.classList.add('hidden');
-             }, 400);
-        }
-        
+        //core functions
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -3906,3 +3827,4 @@
     </script>
 </body>
 </html>
+
