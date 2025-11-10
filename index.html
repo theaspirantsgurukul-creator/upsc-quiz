@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C3ZXT7Q44H"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-C3ZXT7Q44H');
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indian Polity Quiz</title>
@@ -18,23 +27,18 @@
             --modal-overlay-bg: rgba(243, 244, 246, 0.8);
         }
 
-        /* Styles for GitHub Analytics Icon */
-        #analytics-icon {
-            cursor: pointer;
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 50;
-            background-color: #4f46e5;
-            color: white;
-            padding: 0.75rem;
-            border-radius: 9999px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: background-color 0.2s;
-        }
-        #analytics-icon:hover {
-            background-color: #4338ca;
-        }
+        /* ADD THIS NEW BLOCK INSIDE YOUR <style> TAG */
+body.dark-mode select#subject-select,
+body.dark-mode input#num-questions,
+body.dark-mode input#time-limit {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    /* This rule fixes the options within the select box on some browsers */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
 
         /* Styles for Telegram Join Modal */
         #join-modal-overlay {
@@ -76,14 +80,15 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+			overflow-x: hidden;
         }
         
-        .quiz-container {
-            max-width: 900px;
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-            transition: background-color 0.3s, border-color 0.3s;
-        }
+.quiz-container {
+    max-width: 900px;
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+    
         .option-button {
             transition: all 0.2s ease;
             color: var(--text-color);
@@ -106,21 +111,26 @@
         body.dark-mode .quiz-button.bg-indigo-600 { background-color: #6366f1; }
         body.dark-mode .quiz-button.hover\:bg-indigo-700:hover { background-color: #4f46e5; }
         
-        #modal-overlay {
-            background-color: var(--modal-overlay-bg);
-            transition: background-color 0.3s;
-        }
-        .modal-content {
-            transform: scale(0.95);
-            opacity: 0;
-            transition: all 0.3s ease-out;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-        }
-        .modal-show .modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
+        #explanation-modal { /* TARGET THIS SPECIFIC MODAL'S OVERLAY */
+    background-color: var(--modal-overlay-bg); /* This is the dimming background */
+    transition: background-color 0.3s;
+    z-index: 50; /* Ensure it's above everything else */
+}
+
+/* Ensure modal content (the actual box) has a background and is block */
+#explanation-modal .modal-content { /* TARGET THE CONTENT INSIDE THIS MODAL */
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    background-color: var(--card-bg); /* Use the card background color */
+    color: var(--text-color);
+    position: relative; /* Essential for z-index to work against overlay */
+}
+
+.modal-show #explanation-modal .modal-content { /* TARGET SPECIFIC MODAL'S CONTENT WHEN SHOWN */
+    transform: scale(1);
+    opacity: 1;
+}
         #timer.low-time {
             color: #dc2626;
             animation: pulse 1s infinite;
@@ -139,30 +149,42 @@
             display: none; 
         }
         .correct {
-            background-color: #d1fae5 !important;
-            border-color: #10b981 !important;
-        }
-        .incorrect {
-            background-color: #fee2e2 !important;
-            border-color: #ef4444 !important;
-        }
-        body.dark-mode .correct {
-            background-color: #166534 !important;
-            border-color: #22c55e !important;
-        }
-        body.dark-mode .incorrect {
-            background-color: #991b1b !important;
-            border-color: #ef4444 !important;
-        }
+    background-color: #d1fae5 !important; /* Light green BG */
+    border-color: #10b981 !important;     /* Green border */
+    color: #065f46 !important;             /* Darker green text for light mode */
+}
+.incorrect {
+    background-color: #fee2e2 !important; /* Light red BG */
+    border-color: #ef4444 !important;     /* Red border */
+    color: #991b1b !important;             /* Darker red text for light mode */
+}
+body.dark-mode .correct {
+    background-color: #166534 !important; /* Darker green BG */
+    border-color: #22c55e !important;     /* Green border */
+    color: #d1fae5 !important;             /* Light green text for dark mode */
+}
+body.dark-mode .incorrect {
+    background-color: #991b1b !important; /* Darker red BG */
+    border-color: #ef4444 !important;     /* Red border */
+    color: #fee2e2 !important;             /* Light red text for dark mode */
+}
+
+/* Add style for disabled/selected options that are neither correct nor incorrect */
+.option-button:disabled:not(.correct):not(.incorrect) {
+    background-color: var(--border-color); /* Use border-color for a muted background */
+    color: var(--secondary-text);          /* Use secondary text color for readability */
+    opacity: 0.7; /* Slightly dim it */
+}
+
+body.dark-mode .option-button:disabled:not(.correct):not(.incorrect) {
+    background-color: var(--border-color); /* Darker border color for dark mode */
+    color: var(--secondary-text);          /* Secondary text color in dark mode */
+}
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
 
-    <a id="analytics-icon" href="https://github.com/theaspirantsgurukul-creator/upsc-quiz/graphs/traffic" target="_blank" title="View Page Analytics (Requires Login)">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-        </svg>
-    </a>
+    
 
     <div id="notification-container" class="fixed top-5 right-5 z-50"></div>
 
@@ -220,7 +242,7 @@
             </div>
         </div>
 
-        <div id="quiz-app" class="quiz-container p-6 md:p-10 rounded-2xl shadow-xl border animate-fade-in flex flex-col h-full">
+        <div id="quiz-app" class="quiz-container w-full max-w-lg mx-auto p-4 sm:p-6 md:p-10 rounded-2xl shadow-xl border animate-fade-in flex flex-col h-full">
             <div class="flex items-center justify-between mb-6">
                 <h1 id="quiz-title" class="text-xl md:text-2xl font-bold"></h1>
                 <div class="flex items-center space-x-2">
@@ -287,15 +309,15 @@
 
     </div>
     
-    <div id="explanation-modal" class="fixed inset-0 z-40 hidden items-center justify-center p-4" id="modal-overlay">
-        <div class="modal-content rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full">
-            <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
-            <p id="modal-explanation" class="leading-relaxed text-sm md:text-base"></p>
-            <div class="mt-6 text-right">
-                <button id="close-modal-btn" class="quiz-button bg-indigo-600 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Close</button>
-            </div>
+   <div id="explanation-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="modal-content rounded-2xl shadow-2xl p-6 md:p-8 max-w-sm sm:max-w-md w-full bg-white dark:bg-gray-700 max-h-[90vh] overflow-y-auto">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800 dark:text-white"></h3>
+        <p id="modal-explanation" class="leading-relaxed text-sm md:text-base text-gray-700 dark:text-gray-300"></p>
+        <div class="mt-6 text-right">
+            <button id="close-modal-btn" class="quiz-button bg-indigo-600 text-white font-semibold py-2 px-6 rounded-xl shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Close</button>
         </div>
     </div>
+</div>
 
     <script>
         const quizData = {
@@ -3616,7 +3638,7 @@
             const exitSubmitBtn = document.createElement('button');
             // Use a different color (red) to signify a final action
             exitSubmitBtn.className = 'quiz-button bg-red-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-red-700 mx-4';
-            exitSubmitBtn.textContent = 'Exit/Submit Quiz';
+            exitSubmitBtn.textContent = 'Exit';
             exitSubmitBtn.addEventListener('click', () => {
                 // Optional: Add a confirmation dialog before submitting
                 if (confirm('Are you sure you want to submit the quiz now?')) {
@@ -3629,7 +3651,7 @@
             const nextBtn = document.createElement('button');
             // Adjusted padding for better spacing with the new button
             nextBtn.className = 'quiz-button bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-indigo-700'; 
-            nextBtn.textContent = 'Next Question';
+            nextBtn.textContent = 'Next';
             
             // Change button text/color if it's the last question
             if (currentQuestionIndex === quizQuestions.length - 1) {
